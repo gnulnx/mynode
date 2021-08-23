@@ -1,0 +1,8 @@
+# Using unix tools
+echo -n '7DE4708EB23AB611371BB778FC0C8BDE80394AB2D8704D7129FB5771E2F1730D' | python -m hexdump --restore hexdumps.txt | sha256sum -b
+cd5c4a8e03dfbb0e3aa021c2d74a9eaa43ce4c9cb1b20fc88729a7a5834141ca *-
+
+# Using hex dump
+Create file called hexdump.txt and put 7DE4708EB23AB611371BB778FC0C8BDE80394AB2D8704D7129FB5771E2F1730D in it
+python -m hexdump --restore hexdumps.txt | sha256sum -b
+cd5c4a8e03dfbb0e3aa021c2d74a9eaa43ce4c9cb1b20fc88729a7a5834141ca *- 

@@ -8,6 +8,7 @@ from os import walk
 import sys
 from backend.wallet.core.utils.jprint import jprint
 
+# print("HERE")
 
 
 @click.command()
@@ -15,8 +16,6 @@ def idx_txn_add():
     info = bitcoin.getblockchaininfo()
     # The total number of blocks
     height = info["blocks"]
-    jprint(info)
-    input()
     # Change this to what you want
     START_BLOCK = 200000
 

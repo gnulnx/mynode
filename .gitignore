@@ -1,6 +1,5 @@
-# my node subprojects
-backend/
-frontend/
+# Mongo data
+dbdata/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

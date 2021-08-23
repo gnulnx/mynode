@@ -1,0 +1,8 @@
+{
+    "python.formatting.blackPath": "/Users/jfurr/.virtualenvs/wallet/bin/black",
+    "python.formatting.provider": "black",
+    "python.linting.flake8Enabled": true,
+    "python.linting.flake8Path": "/Users/jfurr/.virtualenvs/wallet/bin/flake8",
+    "editor.formatOnSave": true,
+    "python.pythonPath": "/Users/jfurr/.virtualenvs/wallet/bin/python"
+}
