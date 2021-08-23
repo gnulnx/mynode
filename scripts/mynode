@@ -1,0 +1,16 @@
+#!/usr/bin/env python
+import click
+import subprocess
+
+@click.group()
+def mynode():
+    pass
+
+@mynode.command()
+def init():
+    print("init")
+    subprocess.run("git clone https://github.com/gnulnx/mynode_backend backend", shell=True, check=True)
+    subprocess.run("git clone https://github.com/gnulnx/mynode_frontend frontend", shell=True, check=True)
+
+if __name__ == '__main__':
+    mynode()
