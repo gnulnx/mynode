@@ -1,0 +1,2 @@
+# mynode
+Home Bitcoin Node
