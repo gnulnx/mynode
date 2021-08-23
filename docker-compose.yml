@@ -1,0 +1,43 @@
+# Use root/example as user/password credentials
+version: '3.1'
+
+services:
+
+  mongo:
+    image: mongo
+    container_name: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: btc
+      MONGO_INITDB_ROOT_PASSWORD: utxo
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./dbdata:/data/db
+
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    restart: always
+    ports:
+        - 8081:8081
+    environment:
+        ME_CONFIG_MONGODB_ADMINUSERNAME: btc
+        ME_CONFIG_MONGODB_ADMINPASSWORD: utxo
+        ME_CONFIG_MONGODB_URL: mongodb://btc:utxo@mongo:27017/
+
+  backend:
+    build: .
+    container_name: backend
+    volumes:
+        - .:/app
+    ports:
+      - "5000:5000"
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    volumes:
+        - ./frontend:/app
+    ports:
+        - "8080:8080" 

@@ -20,9 +20,11 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 # We copy just the requirements.txt first to leverage Docker cache
 COPY ./requirements* /app/requirements.txt
 RUN python3.8 -m pip install pip --upgrade --force
+RUN echo $PWD
+RUN ls -l
 RUN pip3.8 install -r requirements.txt
 
-COPY entrypoint.sh /app/
-RUN chmod +x entrypoint.sh
+COPY ./entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 ENTRYPOINT ["./entrypoint.sh"]
 

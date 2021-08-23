@@ -1,17 +1,22 @@
-#!/usr/bin/env python
-import sys, os
-sys.path.append(os.getcwd())
+from scripts.mynode import mynode
 import click
-from backend.server import bitcoin
-from backend.server import mongo
+from server import bitcoin
+from server import mongo
 import json
 import time
-from os import walk
 from backend.wallet.core.utils.jprint import jprint
 
-@click.command()
-@click.option('--start', default=1, help='Start block')
-def idx_txn_add(start):
+
+@mynode.group()
+def index():
+    """
+    Transaction/Address Indexing Stuff
+    """
+
+
+@index.command()
+@click.option("--start", default=1, help="Start block")
+def all(start):
     info = bitcoin.getblockchaininfo()
     # The total number of blocks on the node
     height = info["blocks"]
@@ -43,7 +48,7 @@ def idx_txn_add(start):
             print(f"\n{idx} of {height}", end="", flush=True)
         else:
             print(".", end="", flush=True)
-        
+
         hash = bitcoin.getblockhash(idx)
         block = bitcoin.getblock(hash)
         for tx in block["tx"]:
@@ -86,26 +91,24 @@ def idx_txn_add(start):
                         # Update transactions collection
                         mongo.bitcoin.transactions.update_one(
                             {"tx": tx},
-                            {"$addToSet": {"vouts": address},},
+                            {"$addToSet": {"vouts": address}},
                             upsert=True,
                         )
                 else:
                     if "addresses" in scriptpubkey:
                         jprint(txn)
-                        print("What Kind of transaction is this?  Is there an addresses section?")
+                        print(
+                            "What Kind of transaction is this?  Is there an addresses section?"
+                        )
                         input()
                     else:
                         # Write an entry to the badblocks collection so we don't try it again.
                         mongo.bitcoin.badblocks.update_one(
                             {"bad": 1},
                             {"$addToSet": {"blocks": idx}},
-                            upsert=True
+                            upsert=True,
                         )
 
         if idx and idx % 100 == 0:
             print("\nTotal addresses: %s" % len(addresses))
             print("Total txns: %s" % len(transactions))
-
-
-if __name__ == "__main__":
-    idx_txn_add()
