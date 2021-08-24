@@ -27,6 +27,13 @@ def binary_hash(_str, algo="sha256"):
         return h.hexdigest().upper()
 
 
+def hash160(_str):
+    print("Hello")
+    h = hashlib.new("ripemd160")
+    h.update(hexdump.restore(_str.upper()))
+    return h.hexdigest().upper()
+
+
 def plain_hash(_str):
     if not isinstance(_str, bytes):
         _str = _str.upper().encode("utf-8")

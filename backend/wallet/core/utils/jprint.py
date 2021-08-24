@@ -37,3 +37,4 @@ def jprint(message, indent=4, sort_keys=True, default=str, color=True):
     """
     _json, _ = format_json(message, indent, sort_keys, default, color)
     print(_json)
+    return _json

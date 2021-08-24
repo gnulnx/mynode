@@ -18,6 +18,25 @@ def create_qr_code(address, output="wallet_qr.png"):
     return qr.svg_data_uri()
 
 
+def txn_processor(txn):
+    # txn.update(
+    #     {
+    #         "vout": {
+    #             "addresses": sum(
+    #                 [vout["scriptPubKey"].get("addresses", []) for vout in txn["vout"]],
+    #                 [],
+    #             )
+    #         }
+    #     }
+    # )
+    # txn["vout"]["addresses"] = sum(
+    #     [vout["scriptPubKey"].get("addresses", []) for vout in txn["vout"]], []
+    # )
+
+    del txn["hex"]
+    return txn
+
+
 @app.route("/", methods=["GET"])
 def main(q=None):
     q = request.args.get("q")
@@ -34,7 +53,8 @@ def main(q=None):
                 "qr": create_qr_code(address["address"]),
                 "data_type": "address",
                 "tx_outs": [
-                    bitcoin.getrawtransaction(tx, True) for tx in address["vouts"]
+                    txn_processor(bitcoin.getrawtransaction(tx, True))
+                    for tx in address["vouts"]
                 ],
             }
         )
