@@ -1,5 +1,5 @@
-from backend.wallet.core.utils.hash import sha256_ripemd_double_hash, double_hash
-from backend.wallet.core.utils.encoding import base58_encode_hex_str
+from wallet.core.utils.hash import sha256_ripemd_double_hash, double_hash
+from wallet.core.utils.encoding import base58_encode_hex_str
 
 
 def address_from_pubkey(scriptpubkey):

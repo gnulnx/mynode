@@ -6,7 +6,6 @@ BITCOIN_ALPHABET = b"123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 
 
 def base58_encode_hex_str(key):
-    print(f"key: {key}")
     return base58.b58encode(bytes.fromhex(key), alphabet=BITCOIN_ALPHABET).decode(
         "utf-8"
     )

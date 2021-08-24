@@ -4,6 +4,7 @@ import segno
 import pymongo
 from wallet.core.utils.jprint import jprint  # noqa
 from server import bitcoin
+from models import Transaction
 
 app = Flask(__name__)
 
@@ -18,56 +19,19 @@ def create_qr_code(address, output="wallet_qr.png"):
     return qr.svg_data_uri()
 
 
-def txn_processor(txn):
-    # txn.update(
-    #     {
-    #         "vout": {
-    #             "addresses": sum(
-    #                 [vout["scriptPubKey"].get("addresses", []) for vout in txn["vout"]],
-    #                 [],
-    #             )
-    #         }
-    #     }
-    # )
-    # txn["vout"]["addresses"] = sum(
-    #     [vout["scriptPubKey"].get("addresses", []) for vout in txn["vout"]], []
-    # )
-
-    del txn["hex"]
-    return txn
-
-
 @app.route("/", methods=["GET"])
 def main(q=None):
     q = request.args.get("q")
+    if not q:
+        return jsonify({"error": "q required"})
+
+    # This is a pretty cvrude check...
     if len(q) < 64:
         address = mongo.bitcoin.addresses.find_one({"address": q}, {"_id": 0})
-
-        # address.tx_out = []
-        # for txn in address["vouts"]:
-        #     address.tx_out.append(bitcoin.getrawtransaction(tx, True))
-
-        # Your qr codes don't match blockchain.com
-        address.update(
-            {
-                "qr": create_qr_code(address["address"]),
-                "data_type": "address",
-                "tx_outs": [
-                    txn_processor(bitcoin.getrawtransaction(tx, True))
-                    for tx in address["vouts"]
-                ],
-            }
-        )
+        address.update({"qrcode": create_qr_code(address)})
         return jsonify(address)
     else:
-        txn = bitcoin.getrawtransaction(q, True)
-        txn.update(
-            {
-                "data_type": "txn",
-                "coinbase": any(["coinbase" in vin for vin in txn.get("vin", [])]),
-            }
-        )
-        return jsonify(txn)
+        return jsonify(Transaction(q).formated())
 
 
 @app.route("/info", methods=["GET"])

@@ -28,7 +28,6 @@ def binary_hash(_str, algo="sha256"):
 
 
 def hash160(_str):
-    print("Hello")
     h = hashlib.new("ripemd160")
     h.update(hexdump.restore(_str.upper()))
     return h.hexdigest().upper()

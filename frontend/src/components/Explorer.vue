@@ -76,7 +76,7 @@ export default {
                     console.log(JSON.stringify(resp.data, null, 2))
                     if (resp.data.data_type == 'address') {
                         self.$store.commit("address", resp.data)
-                        // self.address = resp.data
+                        self.address = resp.data
                     } else if (resp.data.data_type == 'txn') {
                         self.$store.commit("txn", resp.data)
                         self.txn = resp.data

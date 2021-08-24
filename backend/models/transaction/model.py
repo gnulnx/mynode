@@ -1,8 +1,8 @@
-from backend.server import bitcoin
-from backend.wallet.core.utils.jprint import jprint
-from backend.wallet.core.utils.hash import *
-from backend.wallet.core.utils.encoding import *
-import backend.models.transaction.utils as tx_utils
+from server import bitcoin
+from wallet.core.utils.jprint import jprint
+from wallet.core.utils.hash import *
+from wallet.core.utils.encoding import *
+import models.transaction.utils as tx_utils
 import uuid
 import json
 
@@ -20,17 +20,33 @@ class Transaction:
         # Output address/value
         self.outputs = []
 
+        # Record any errors during processing
+        self.errors = []
+
         self.process_transaction()
 
     def output(self):
         return {"inputs": self.inputs, "outputs": self.outputs}
 
+    def formated(self):
+        return {
+            "data_type": "txn",
+            "tx": self.tx,
+            "coinbase": self.coinbase,
+            "inputs": self.inputs,
+            "outputs": self.outputs,
+        }
+
     def __str__(self):
         return json.dumps(self.output(), indent=4, sort_keys=True, default=str)
 
     def process_transaction(self):
-        self.process_vin()
-        self.process_vout()
+        try:
+            self.process_vin()
+            self.process_vout()
+        except Exception as e:
+            self.errors.append({"exception": str(e)})
+            jprint(self.errors)
 
     def process_vin(self):
         for vin in self.tx["vin"]:
@@ -38,8 +54,6 @@ class Transaction:
                 self.coinbase = True
                 continue
             txid2 = Transaction(vin["txid"], parent=self)
-            # jprint(txid2.tx)
-            # input()
 
     def process_vout(self):
         for vout in self.tx["vout"]:
@@ -49,18 +63,22 @@ class Transaction:
                 address = self.address_from_pubkey(vout["scriptPubKey"])
                 if self.parent:
                     self.parent.inputs.append({"address": address, "value": value})
-                    print(f"Adding: {address} to {self.uuid}")
                 else:
                     self.outputs.append({"address": address, "value": value})
 
             elif script_type == "pubkeyhash":
                 address = self.address_from_pybkeyhash(vout["scriptPubKey"])
                 if self.parent:
-                    self.parent.input.append({"address": address, "value": value})
+                    self.parent.inputs.append({"address": address, "value": value})
                 else:
                     self.outputs.append({"address": address, "value": value})
 
             else:
+                msg = {"message": f"script_type: {script_type} is not implemented yet"}
+                if self.parent:
+                    self.parent.errors.append(msg)
+                else:
+                    self.errors.append(msg)
                 raise NotImplementedError(script_type)
 
     def address_from_pubkey(self, scriptpubkey):

@@ -9,23 +9,49 @@
         </div>
 
         <div v-if="txn.coinbase" class="columns">
-            <div class="column is-3"></div>
+            <div class="column is-1"></div>
             <div class="column">
                 <span v-if="txn.coinbase" class="is-size-5">(Coinbase)</span>
             </div>
             <div class="column is-1"> => </div>
-            <div class="column is-4">
+            <div class="column">
                 <ul>
-                    <li v-for="v in txn.vout" :key="v.txid">
+                    <li v-for="v in txn.outputs" :key="v.address">
                         <div class="columns">
-                            <div class="column is-9">{{v.scriptPubKey.addresses[0]}}</div> 
-                            <div class="column is-3">{{v.value}}</div>
+                            <div class="column is-9">{{v.address}}</div> 
+                            <div class="column is-3">{{v.value.toFixed(8)}}</div>
                         </div>
                     </li>
                 </ul>
             </div>
             <div class="column is-3"></div>
         </div>
+
+       <div v-if="!txn.coinbase" class="columns">
+            <div class="column is-1"></div>
+            <div class="column">
+                <ul>
+                    <li v-for="v in txn.inputs" :key="v.address">
+                        <div class="columns">
+                            <div class="column is-9">{{v.address}}</div> 
+                            <div class="column is-3">{{v.value.toFixed(8)}}</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="column is-1"> => </div>
+            <div class="column">
+                <ul>
+                    <li v-for="v in txn.outputs" :key="v.address">
+                        <div class="columns">
+                            <div class="column is-9">{{v.address}}</div> 
+                            <div class="column is-3">{{v.value.toFixed(8)}}</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="column is-3"></div>
+        </div> 
         <!-- <div v-if="txn.coinbase">
         <span v-if="txn.coinbase" class="is-size-5">(Coinbase)</span> -->
         
