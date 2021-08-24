@@ -11,6 +11,7 @@ RUN npm install
 COPY . .
 
 COPY entrypoint.sh /app/entrypoint.sh
+COPY server.py /app/server.py
 RUN chmod +x /app/entrypoint.sh
 ENTRYPOINT ["./entrypoint.sh"]
 

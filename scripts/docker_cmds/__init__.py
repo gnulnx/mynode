@@ -13,7 +13,7 @@ def build():
 def start():
     # Build containers
     subprocess.run(
-        f"docker-compose build --no-cache --parallel", shell=True, check=True
+        f"docker-compose up -d", shell=True, check=True
     )
 
 

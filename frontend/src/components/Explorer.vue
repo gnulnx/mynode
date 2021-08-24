@@ -73,7 +73,7 @@ export default {
                 .get(`/api/?q=${q}`)
                 .then(resp => {
                     console.log("RETURNED")
-                    console.log(resp.data)
+                    console.log(JSON.stringify(resp.data, null, 2))
                     if (resp.data.data_type == 'address') {
                         self.$store.commit("address", resp.data)
                         // self.address = resp.data

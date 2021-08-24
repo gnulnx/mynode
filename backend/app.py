@@ -1,11 +1,8 @@
 #!/usr/bin/env python
-# flask_web/app.py
-
 from flask import Flask, jsonify, request
-import pymongo
 import segno
-from wallet.core.utils.wallet import compute_wif
-from wallet.core.utils.jprint import jprint
+import pymongo
+from wallet.core.utils.jprint import jprint  # noqa
 from server import bitcoin
 
 app = Flask(__name__)
@@ -27,12 +24,18 @@ def main(q=None):
     if len(q) < 64:
         address = mongo.bitcoin.addresses.find_one({"address": q}, {"_id": 0})
 
+        # address.tx_out = []
+        # for txn in address["vouts"]:
+        #     address.tx_out.append(bitcoin.getrawtransaction(tx, True))
+
         # Your qr codes don't match blockchain.com
-        # wif = compute_wif(address["address"], compressed=True)
         address.update(
             {
                 "qr": create_qr_code(address["address"]),
                 "data_type": "address",
+                "tx_outs": [
+                    bitcoin.getrawtransaction(tx, True) for tx in address["vouts"]
+                ],
             }
         )
         return jsonify(address)
