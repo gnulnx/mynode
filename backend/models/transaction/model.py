@@ -2,6 +2,7 @@ from backend.server import bitcoin
 from backend.wallet.core.utils.jprint import jprint
 from backend.wallet.core.utils.hash import *
 from backend.wallet.core.utils.encoding import *
+import backend.models.transaction.utils as tx_utils
 import uuid
 import json
 
@@ -36,8 +37,9 @@ class Transaction:
             if "coinbase" in vin:
                 self.coinbase = True
                 continue
-            # jprint(vin)
             txid2 = Transaction(vin["txid"], parent=self)
+            # jprint(txid2.tx)
+            # input()
 
     def process_vout(self):
         for vout in self.tx["vout"]:
@@ -63,14 +65,8 @@ class Transaction:
 
     def address_from_pubkey(self, scriptpubkey):
         # P2Pk
-        asm = scriptpubkey["asm"].split()[0]
-        h = sha256_ripemd_double_hash(asm, False)
-        key = "00" + h
-        checksum = double_hash(key, binary=True)[:8]
-        return base58_encode_hex_str(key + checksum)
+        return tx_utils.address_from_pubkey(scriptpubkey)
 
     def address_from_pybkeyhash(self, scriptpubkey):
-        h = scriptpubkey["asm"].split()[2]
-        key = "00" + h
-        checksum = double_hash(key, binary=True)[:8]
-        return base58_encode_hex_str(key + checksum)
+        # P2PKH
+        return tx_utils.address_from_pubkeyhash(scriptpubkey)
