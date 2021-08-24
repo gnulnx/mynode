@@ -77,6 +77,7 @@ export default {
                     if (resp.data.data_type == 'address') {
                         self.$store.commit("address", resp.data)
                         self.address = resp.data
+                        console.log("Address state has been saved")
                     } else if (resp.data.data_type == 'txn') {
                         self.$store.commit("txn", resp.data)
                         self.txn = resp.data

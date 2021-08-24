@@ -7,22 +7,11 @@
         </div>
        <div class="columns is-flex is-horz-center"> 
            <div class="column is-3 is-flex is-horz-center">
-                <img class="qr" :src="address.qr">
+                <img class="qr" :src="address.qrcode">
             </div>
 
             <div class="column is-3">
-                <div class="columns bot-brd ">
-                    <div class="column is-3">Address</div>
-                    <div class="column">{{address.address}}</div>
-                </div>
-                <div class="columns bot-brd ">
-                    <div class="column is-3">Balance</div>
-                    <div class="column">{{address.total}}</div>
-                </div>
-                <div class="columns bot-brd ">
-                    <div class="column is-3">Transactions</div>
-                    <div v-if="address" class="column">{{address.utxos.length}}</div>
-                </div>
+                
             </div>
             <div class="column is-4"></div>
 
@@ -32,37 +21,6 @@
             <div class="column"></div>
             
             <div class="column is-horz-center bot-brd">
-                <h1 class="title">UTXO's</h1>
-                <br>
-                <ul id='utxo-list'>
-                    <li v-for="utxo in address.utxos" :key="utxo.txnid">
-                        <div class="utxo bot-brd">
-                            <div class="columns">
-                                <div class="column">Tx</div>
-                                <div class="column">
-                                <a :href='utxo.txnid'>{{utxo.txnid}}</a>
-                                </div>
-                            </div>
-                            <div class="columns">
-                                <div class="column">outnum</div>
-                                <div class="column">{{utxo.outnum}}</div>
-                            </div>
-                            <div class="columns">
-                                <div class="column">cionbase</div>
-                                <div class="column">{{utxo.coinbase}}</div>
-                            </div>
-                            <div class="columns">
-                                <div class="column">amount</div>
-                                <div class="column">{{utxo.amount}}</div>
-                            </div>
-                            <div class="columns">
-                                <div class="column">type</div>
-                                <div class="column">{{utxo.type}}</div>
-                            </div>
-                        </div>
-                    </li>
-                </ul>
-                <!-- <pre v-if="address">{{ JSON.stringify(address,undefined,2) }}</pre>  -->
             </div>
             <div class="column"></div>
         </div>

@@ -15,7 +15,7 @@ mongo = pymongo.MongoClient(
 
 def create_qr_code(address, output="wallet_qr.png"):
     print("create_qr_code: %s" % address)
-    qr = segno.make(address)
+    qr = segno.make(f"bitcoin:{address['address']}")
     return qr.svg_data_uri()
 
 
@@ -28,7 +28,7 @@ def main(q=None):
     # This is a pretty cvrude check...
     if len(q) < 64:
         address = mongo.bitcoin.addresses.find_one({"address": q}, {"_id": 0})
-        address.update({"qrcode": create_qr_code(address)})
+        address.update({"data_type": "address", "qrcode": create_qr_code(address)})
         return jsonify(address)
     else:
         return jsonify(Transaction(q).formated())
