@@ -61,13 +61,27 @@
             </div>
             <div class="column"></div> 
         </div> -->
+
+        <div class="columns">
+            <div class="column"></div> 
+            <div class="column is-10 is-horz-center bot-brd">
+                <h1 class="title">Transactions</h1>
+                <TransactionPanel v-for="txid in address.inputs" :key="txid" :txid="txid" />
+            </div>
+            <div class="column"></div> 
+        </div>
+
     </div>
 </template>
 
 <script>
+import TransactionPanel from "./TransactionPanel.vue"
 export default {
     name: "Address",
     props: ["address"],
+    components: {
+        TransactionPanel
+    },
     mounted() {
         console.log("Created new address")
         console.log(this.address)
