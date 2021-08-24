@@ -1,6 +1,5 @@
 <template>
   <div id="explorer">
-        <!-- <Header v-on:submit-query="get_address" :qp="q" /> -->
         <div class="columns">
             <div class="column"></div>
             <div class="column"><h1 class="title">Block Explorer</h1></div>
@@ -16,7 +15,7 @@
             </div>
             <div class="column"></div>
         </div>
-        <Address v-if="this.$store.state.address" :address="this.$store.state.address" />
+        <Address v-if="address" :address="address" />
         <Home v-if="home" :data="home" />
         <Transaction v-if="txn" :txn="txn" />
   </div>
@@ -66,34 +65,34 @@ export default {
         });
     },
     methods: {
-        get_address: function(q) {
-            // Example addresses
-            // 1PaPFX6idr3zCfk3uCq8m1dWC8hZuoy6gg
-            // 1NQ44Qv7ckBdup1kesYcP1kPTrFLaa98xU
-            var self = this;
-            axios
-                .get(`/api/?q=${q}`)
-                .then(resp => self.address = resp.data)
-
-            console.log(this.address)
-        },
         get_data: function(q) {
             var self = this;
+            this.q = ''
+            this.address = ''
+            this.txn = ''
+            this.home = ''
             axios
                 .get(`/api/?q=${q}`)
                 .then(resp => {
-                    console.log("RETURNED")
-                    console.log(JSON.stringify(resp.data, null, 2))
+                    // console.log(JSON.stringify(resp.data, null, 2))
+                    // console.log("^^ get_data return")
+
                     if (resp.data.data_type == 'address') {
-                        self.$store.commit("address", resp.data)
+                        // self.$store.commit("address", resp.data)
                         self.address = resp.data
+                        self.txn = null;
                         console.log("Address state has been saved")
                     } else if (resp.data.data_type == 'txn') {
-                        self.$store.commit("txn", resp.data)
+                        // self.$store.commit("txn", resp.data)
                         self.txn = resp.data
+                        self.address = null
                         console.log(JSON.stringify(self.txn, null, 2))
                     }
                 })
+
+            console.log("get_data")
+            console.log(this.address)
+            console.log(this.txn)
         }
     }
 }
