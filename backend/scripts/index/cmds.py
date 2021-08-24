@@ -1,18 +1,10 @@
-from scripts.mynode import mynode
+from .group import index
+
 import click
 from server import bitcoin
 from server import mongo
-import json
-import time
-from backend.wallet.core.utils.jprint import jprint
-from backend.models.transaction.model import Transaction
-
-
-@mynode.group()
-def index():
-    """
-    Transaction/Address Indexing Stuff
-    """
+from wallet.core.utils.jprint import jprint
+from models.transaction.model import Transaction
 
 
 @index.command()

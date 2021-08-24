@@ -12,6 +12,6 @@ setup(
     author_email="john.furr@gmail.com",
     url="https://github.com/gnulnx/mynode",
     packages=find_packages(),
-    entry_points={"console_scripts": ["mynode=scripts.mynode:mynode"]},
+    entry_points={"console_scripts": ["mynode=backend.scripts:mynode"]},
     include_package_data=True,
 )
