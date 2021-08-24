@@ -23,19 +23,23 @@
 </template>
 
  <script>
+//  import Vue from 'vue'
 import axios from 'axios'
 // import Header from './Header.vue'
 import Address from './Address.vue'
 import Home from './Home.vue'
 import Transaction from './Transaction.vue'
+import { EventBus } from '@/event-bus';
+
+
 
 export default {
     name: 'Explorer',
     components: {
-    // Header,
-    Address,
-    Transaction,
-    Home
+        // Header,
+        Address,
+        Transaction,
+        Home
     },
     data() {
         return {
@@ -54,6 +58,12 @@ export default {
             this.q=lastpart
             this.get_data(lastpart)
         }
+
+        EventBus.$on('fetch', (q) => {
+            this.q = q;
+            console.log("Fetch new data baby")
+            this.get_data(q)
+        });
     },
     methods: {
         get_address: function(q) {

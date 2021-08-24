@@ -10,7 +10,27 @@
                 <img class="qr" :src="address.qrcode">
             </div>
 
-            <div class="column is-3">
+            <div class="column is-5">
+                <ul>
+                    <li>
+                        <div class="columns">
+                            <div class="column left">Address</div>
+                            <div class="column left">{{address.address}}</div>
+                        </div>
+                    </li>
+                     <li>
+                        <div class="columns">
+                            <div class="column left">Total Transactions</div>
+                            <div class="column left">{{address.inputs.length}}</div>
+                        </div>
+                    </li>
+                    <!-- <li>
+                        <div class="columns">
+                            <div class="column">Spend</div>
+                            <div class="column">{{address.outputs.length}}</div>
+                        </div>
+                    </li> -->
+                </ul>
                 
             </div>
             <div class="column is-4"></div>
@@ -65,8 +85,8 @@
         <div class="columns">
             <div class="column"></div> 
             <div class="column is-10 is-horz-center bot-brd">
-                <h1 class="title">Transactions</h1>
-                <TransactionPanel v-for="txid in address.inputs" :key="txid" :txid="txid" />
+                <h1 class="title">Transactions ({{address.inputs.length}})</h1>
+                <TransactionPanel v-for="txid in address.inputs" :key="txid" :txid="txid" v-on:fetch="$emit('fetch')" />
             </div>
             <div class="column"></div> 
         </div>
@@ -112,5 +132,11 @@ export default {
 .qr {
     width: 50%;
     height: auto;
+}
+.left {
+    text-align: left;;
+}
+.right {
+    text-align: right;;
 }
 </style>
