@@ -1,7 +1,9 @@
+from sys import hash_info
 from .group import index
 
 import click
 from server import bitcoin
+from pymongo import IndexModel, ASCENDING
 from server import mongo
 from wallet.core.utils.jprint import jprint
 from models.transaction.model import Transaction
@@ -33,6 +35,17 @@ def all(start):
     }
     """
     transactions = {}
+
+    """
+    Create indexes for the mongo collections
+    """
+    idx_index = IndexModel([("idx", ASCENDING)])
+    hash_index = IndexModel([("hash", ASCENDING)])
+    mongo.bitcoin.blocks.create_indexes([idx_index, hash_index])
+
+    add_index = IndexModel([("address", ASCENDING)])
+    mongo.bitcoin.addresses.create_indexes([add_index])
+
     print("height: %s" % height)
     print("start: %s" % start)
 
