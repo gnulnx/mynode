@@ -18,7 +18,7 @@
                 <ul>
                     <li v-for="v in txn.outputs" :key="v.address">
                         <div class="columns">
-                            <div class="column is-9">{{v.address}}</div> 
+                            <a class="column is-9" @click="bus.$emit('fetch', v.address)">{{v.address}}</a> 
                             <div class="column is-3">{{v.value.toFixed(8)}}</div>
                         </div>
                     </li>

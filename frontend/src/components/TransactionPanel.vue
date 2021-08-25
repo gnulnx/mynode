@@ -19,7 +19,7 @@
                 <ul>
                     <li v-for="(txid, idx) in tx.inputs" :key="idx">
                         <div class="columns">
-                            <div class="column left">{{txid.address}}</div>
+                            <a class="column left" @click="bus.$emit('fetch', txid.address)">{{txid.address}}</a>
                             <div class="column is-1 right">{{txid.value.toFixed(2)}}</div>
                         </div>
                     </li>
@@ -31,7 +31,7 @@
                 <ul>
                     <li v-for="(txid, idx) in tx.outputs" :key="idx">
                         <div class="columns">
-                            <div class="column left">{{txid.address}}</div>
+                            <a class="column left" @click="bus.$emit('fetch', txid.address)">{{txid.address}}</a>
                             <div class="column is-1 right">{{txid.value.toFixed(2)}}</div>
                         </div>
                     </li>
@@ -60,6 +60,7 @@ export default defineComponent({
     props: ["txid"],
     data() {
         return {
+            bus: EventBus,
             tx: null
         }
     },
