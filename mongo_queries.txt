@@ -1,4 +1,4 @@
-Just a quick and dirty place to drop interesting mongo queries.  I mostly use this as copy past into Robomongo.
+# Just a quick and dirty place to drop interesting mongo queries.  I mostly use this as copy past into Robomongo.
 
 # Get stats on blocks collections
 db.getCollection('blocks').aggregate(
@@ -19,6 +19,9 @@ db.getCollection('blocks').aggregate(
 db.getCollection('addresses').find({
     "outputs": {"$exists": true}
 })
+
+# All addresses that have at least (gte) n spends
+db.getCollection('addresses').find({'outputs.15': {"$exists": true}})
 
 # Average number of spends for addresses that have sent Bitcoin
 db.getCollection('addresses').aggregate(
