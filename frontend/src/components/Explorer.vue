@@ -67,7 +67,7 @@ export default {
     methods: {
         get_data: function(q) {
             var self = this;
-            this.q = ''
+            // this.q = ''
             this.address = ''
             this.txn = ''
             this.home = ''
@@ -85,6 +85,7 @@ export default {
                     } else if (resp.data.data_type == 'txn') {
                         // self.$store.commit("txn", resp.data)
                         self.txn = resp.data
+                        self.address.inputs = []
                         self.address = null
                         console.log(JSON.stringify(self.txn, null, 2))
                     }

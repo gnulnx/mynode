@@ -75,18 +75,12 @@ export default defineComponent({
                 })
                 .catch(err => console.log(err))
         }
-        // console.log(`Mounted with ${this.txid}`)
     },
     methods: {
         fetch() {
             EventBus.$emit('fetch', this.txid);
         }
     }
-    // watch: { 
-    //     txid: function(newVal, oldVal) { // watch it
-    //         console.log('Prop changed: ', newVal, ' | was: ', oldVal)
-    //     }
-    // }
 })
 </script>
 
