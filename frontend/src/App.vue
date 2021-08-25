@@ -12,39 +12,15 @@
 
 <script>
 import Vue from 'vue'
-import Vuex from 'vuex'
 import axios from 'axios'
 import Buefy from 'buefy'
 import VueRouter from 'vue-router'
-// import Header from './components/Header.vue'
 import 'buefy/dist/buefy.css'
 Vue.use(Buefy)
 Vue.use(VueRouter)
-Vue.use(Vuex)
-
-const store = new Vuex.Store({
-  state: {
-    address: '',
-    txn: '',
-  },
-  mutations: {
-    address (state, n) {
-        state.txn = ''
-        state.address = n
-    },
-    txn(state, n) {
-        state.address = ''
-        state.txn = n
-    }
-  }
-})
 
 export default {
   name: 'App',
-  components: {
-    //   Header
-  },
-  store: store,
   data() {
       return {
           exp: false,
@@ -67,15 +43,10 @@ export default {
         // Example addresses
         // 1PaPFX6idr3zCfk3uCq8m1dWC8hZuoy6gg
         // 1NQ44Qv7ckBdup1kesYcP1kPTrFLaa98xU
-        console.log(`App.get_address: ${store}`)
         var self = this;
         axios
             .get(`/api/?q=${q}`)
             .then(resp => self.address = resp.data)
-
-        store.commit("address", this.address)
-        console.log("store.state.address below")
-        console.log(store.state.address)
     },
   }
 }

@@ -1,0 +1,11 @@
+on 71036: [
+    {
+        "message": "script_type: nonstandard is not implemented yet"
+    },
+    {
+        "message": "script_type: nonstandard is not implemented yet"
+    },
+    {
+        "exception": "nonstandard"
+    }
+]

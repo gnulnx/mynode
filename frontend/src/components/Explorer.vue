@@ -74,18 +74,12 @@ export default {
             axios
                 .get(`/api/?q=${q}`)
                 .then(resp => {
-                    // console.log(JSON.stringify(resp.data, null, 2))
-                    // console.log("^^ get_data return")
-
                     if (resp.data.data_type == 'address') {
-                        // self.$store.commit("address", resp.data)
                         self.address = resp.data
                         self.txn = null;
                         console.log("Address state has been saved")
                     } else if (resp.data.data_type == 'txn') {
-                        // self.$store.commit("txn", resp.data)
                         self.txn = resp.data
-                        self.address.inputs = []
                         self.address = null
                         console.log(JSON.stringify(self.txn, null, 2))
                     }

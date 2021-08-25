@@ -12,7 +12,7 @@ const routes = [
     component: Home
   },
   {
-    path: '/explorer',
+    path: '/explorer/:q',
     name: 'Explorer',
     component: Explorer
   },
