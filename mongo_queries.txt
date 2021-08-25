@@ -1,0 +1,36 @@
+Just a quick and dirty place to drop interesting mongo queries.  I mostly use this as copy past into Robomongo.
+
+# Get stats on blocks collections
+db.getCollection('blocks').aggregate(
+    [
+        {
+            "$group": {
+                _id: "avgs",
+                "avg_txns": {"$avg": "$nTx"},
+                "total_txns": {"$sum": "$nTx"},
+                "total_blocks": {"$sum": 1}
+            }
+        }
+    ]
+)
+
+# All addresses that have spend bitcoin
+# Address that have outputs
+db.getCollection('addresses').find({
+    "outputs": {"$exists": true}
+})
+
+# Average number of spends for addresses that have sent Bitcoin
+db.getCollection('addresses').aggregate(
+{
+    "$match": {
+        "outputs": {"$exists": true}
+    }
+},
+{
+    "$group": {
+        "_id": "group",
+        "Total": {"$avg": {"$size": "$outputs"}}
+    }
+}
+)
