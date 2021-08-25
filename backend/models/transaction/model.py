@@ -11,7 +11,12 @@ class Transaction:
     def __init__(self, txid, parent=None):
         self.uuid = uuid.uuid4()
 
+        self.txid = txid
         self.tx = bitcoin.getrawtransaction(txid, True)
+        # if not parent:
+        #     print("Building New Transaction: %s" % txid)
+        #     jprint(self.tx)
+        #     input()
         self.coinbase = False
         self.parent = parent
 
@@ -38,22 +43,41 @@ class Transaction:
         }
 
     def __str__(self):
+        return self.txid
         return json.dumps(self.output(), indent=4, sort_keys=True, default=str)
 
     def process_transaction(self):
         try:
-            self.process_vin()
+            if not self.parent:
+                self.process_vin()
             self.process_vout()
         except Exception as e:
             self.errors.append({"exception": str(e)})
             jprint(self.errors)
 
     def process_vin(self):
+        # Set at begin/end.  A hack to stop infinite recurssion
+        # if hasattr(self, "process_vin_called"):
+        #     return
+
+        # print("process_vin: %s" % len(self.tx["vin"]))
+        # input()
+
         for vin in self.tx["vin"]:
             if "coinbase" in vin:
                 self.coinbase = True
+                # TODO Do you need something in the inputs here?
                 continue
+
+            outnum = vin["vout"]
             txid2 = Transaction(vin["txid"], parent=self)
+            self.inputs.append(txid2.outputs[outnum])
+
+        # print(self.inputs)
+        # print("vins processed")
+        # input()
+
+        # setattr(self, "process_vin_called", True)
 
     def process_vout(self):
         for vout in self.tx["vout"]:
@@ -61,17 +85,11 @@ class Transaction:
             value = vout["value"]
             if script_type == "pubkey":
                 address = self.address_from_pubkey(vout["scriptPubKey"])
-                if self.parent:
-                    self.parent.inputs.append({"address": address, "value": value})
-                else:
-                    self.outputs.append({"address": address, "value": value})
+                self.outputs.append({"address": address, "value": value})
 
             elif script_type == "pubkeyhash":
                 address = self.address_from_pybkeyhash(vout["scriptPubKey"])
-                if self.parent:
-                    self.parent.inputs.append({"address": address, "value": value})
-                else:
-                    self.outputs.append({"address": address, "value": value})
+                self.outputs.append({"address": address, "value": value})
 
             else:
                 msg = {"message": f"script_type: {script_type} is not implemented yet"}

@@ -37,15 +37,16 @@ def all(start):
         if mongo.bitcoin.badblocks.find_one({"blocks": idx}):
             continue
 
-        if not idx or idx % 100 == 0:
-            print(f"\n{idx} of {height}", end="", flush=True)
-        else:
-            print(".", end="", flush=True)
-
         hash = bitcoin.getblockhash(idx)
         block = bitcoin.getblock(hash)
+        print(f"{idx} of {height} {block['hash']}  Transactions {len(block['tx'])}")
         for tx in block["tx"]:
+            # tx = "5933f83f611896b3f35fd650b4f03f9d85d4b6491299c5c5398000834929a224"
             txn = Transaction(tx)
+            # jprint(txn.tx)
+            # jprint(txn.inputs)
+            # jprint(txn.outputs)
+            # input()
 
             for address in txn.outputs:
                 # Update address collection
@@ -63,12 +64,6 @@ def all(start):
 
             if txn.errors:
                 jprint(txn.errors)
-            # if txn.inputs:
-            #     jprint(txn.tx)
-            #     print(txn.inputs)
-            #     print(txn.outputs)
-            #     print(txn.errors)
-            #     input()
 
         if idx and idx % 100 == 0:
             print("\nTotal addresses: %s" % len(addresses))
