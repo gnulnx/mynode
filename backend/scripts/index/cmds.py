@@ -5,6 +5,7 @@ from server import bitcoin
 from server import mongo
 from wallet.core.utils.jprint import jprint
 from models.transaction.model import Transaction
+from datetime import datetime
 
 
 @index.command()
@@ -34,19 +35,33 @@ def all(start):
 
     for idx in range(start, height):
         # Track the unprocessable blocks so we don't have to do it again on each new iteration
-        if mongo.bitcoin.badblocks.find_one({"blocks": idx}):
-            continue
+        # if mongo.bitcoin.badblocks.find_one({"blocks": idx}):
+        #     continue
 
         hash = bitcoin.getblockhash(idx)
-        block = bitcoin.getblock(hash)
-        print(f"{idx} of {height} {block['hash']}  Transactions {len(block['tx'])}")
+        block = bitcoin.getblock(hash, 1)
+        out = mongo.bitcoin.blocks.update_one(
+            {"idx": idx},
+            {
+                "$set": {
+                    "nTx": block["nTx"],
+                    "ts": datetime.fromtimestamp(block["time"]),
+                    "hash": hash,
+                }
+            },
+            upsert=True,
+        )
+        if out.matched_count == 1:
+            # Don't process blocks that have already been processed
+            continue
+        ts = datetime.fromtimestamp(block["time"]).strftime("%Y-%m-%d %h:%M:%S")
+        print(
+            f"{idx} of {height}, hash: {block['hash']}, Transaction: {block['nTx']}, ts: {ts}"
+        )
+
         for tx in block["tx"]:
             # tx = "5933f83f611896b3f35fd650b4f03f9d85d4b6491299c5c5398000834929a224"
             txn = Transaction(tx)
-            # jprint(txn.tx)
-            # jprint(txn.inputs)
-            # jprint(txn.outputs)
-            # input()
 
             for address in txn.outputs:
                 # Update address collection
