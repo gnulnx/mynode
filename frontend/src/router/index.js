@@ -12,6 +12,11 @@ const routes = [
     component: Home
   },
   {
+    path: '/explorer/',
+    name: 'Explorer',
+    component: Explorer
+  },
+  {
     path: '/explorer/:q',
     name: 'Explorer',
     component: Explorer
