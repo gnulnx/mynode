@@ -31,6 +31,7 @@ def main(q=None):
         address.update({"data_type": "address", "qrcode": create_qr_code(address)})
         return jsonify(address)
     else:
+        print(bitcoin.getblockchaininfo())
         return jsonify(Transaction(q).formated())
 
 

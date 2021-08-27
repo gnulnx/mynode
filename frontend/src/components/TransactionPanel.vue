@@ -1,7 +1,5 @@
 <template>
     <div v-if="tx" class="txn_panel">
-        <!-- <div class="container">Hello</div> -->
-        <!-- header -->
 
         <div class="container">
             <div class="columns">
@@ -105,8 +103,6 @@ export default defineComponent({
     border: solid 1px black;
     border-radius: 5px;
     width: 100%;
-//     margin-top: 10px;
-//     margin-bottom: 10px; 
 }
 .container {
     border: solid 1px black;

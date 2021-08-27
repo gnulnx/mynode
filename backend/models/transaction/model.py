@@ -8,15 +8,22 @@ import json
 
 
 class Transaction:
-    def __init__(self, txid, parent=None):
+    def __init__(self, tx="", txid=None, parent=None):
+        """
+        Two way's to instantiate a Transaction object.
+        1) Pass in a txid.  This will use getrawtransaction to fetch the transaction record.
+        2) Pass in a transaction record.  Likley from getblock 2 which returns all the transaction
+           objects so we don't have to iterate over them and pass in the ids'.
+           getblock 2 is much faster than getblock 1 followed by getrawtransaction loop.
+        """
         self.uuid = uuid.uuid4()
 
-        self.txid = txid
-        self.tx = bitcoin.getrawtransaction(txid, True)
-        # if not parent:
-        #     print("Building New Transaction: %s" % txid)
-        #     jprint(self.tx)
-        #     input()
+        if txid:
+            self.txid = txid
+            self.tx = bitcoin.getrawtransaction(txid, True)
+        elif tx:
+            self.tx = tx
+
         self.coinbase = False
         self.parent = parent
 
@@ -56,12 +63,6 @@ class Transaction:
             jprint(self.errors)
 
     def process_vin(self):
-        # Set at begin/end.  A hack to stop infinite recurssion
-        # if hasattr(self, "process_vin_called"):
-        #     return
-
-        # print("process_vin: %s" % len(self.tx["vin"]))
-        # input()
 
         for vin in self.tx["vin"]:
             if "coinbase" in vin:
@@ -70,14 +71,8 @@ class Transaction:
                 continue
 
             outnum = vin["vout"]
-            txid2 = Transaction(vin["txid"], parent=self)
+            txid2 = Transaction(txid=vin["txid"], parent=self)
             self.inputs.append(txid2.outputs[outnum])
-
-        # print(self.inputs)
-        # print("vins processed")
-        # input()
-
-        # setattr(self, "process_vin_called", True)
 
     def process_vout(self):
         for vout in self.tx["vout"]:

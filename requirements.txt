@@ -30,3 +30,4 @@ python-bitcoinlib==0.11.0
 # python-bitcoinlib @ git+https://github.com/petertodd/python-bitcoinlib@0ea83c4fd499c63823754627c69ebdd79dc0d62c
 # matplotlib==3.4.2
 alive-progress==1.6.2
+blockchain-parser==0.1.5

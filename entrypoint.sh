@@ -5,4 +5,4 @@ python3 backend/app.py
 
 # Leave somethign running in case we need to get into the
 # container to poke around
-tail /dev/null
+tail -f /dev/null
