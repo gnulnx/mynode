@@ -51,25 +51,18 @@ from alive_progress import alive_bar
 def all(
     start, perf, bitcoin_host, bitcoin_user, bitcoin_password, bitcoin_port, queues
 ):
-    # print("bitcoin_user: %s" % bitcoin_user)
-    # print("bitcoin_password: %s" % bitcoin_password)
-    # print("bitcoin_host: %s" % bitcoin_host)
-    # print("bitcoin_port: %s" % bitcoin_port)
-    # input()
-    # bitcoin = Bitcoin("gnulnx", "bc", "bs", 8332)
-    bitcoin = Bitcoin(
-        bitcoin_user,
-        bitcoin_password,
-        bitcoin_host,
-        bitcoin_port,
-    )
+
+    # Initilize our bitcoin client
+    bitcoin = Bitcoin(bitcoin_user, bitcoin_password, bitcoin_host, bitcoin_port)
+
     info = bitcoin.getblockchaininfo()
+
     # The total number of blocks on the node
     height = int(info["blocks"])
     print(height)
-    # Build the mongo queue database
 
     if queues:
+        # Build the mongo queue database
         curr_blocks = [
             i["idx"] for i in mongo.bitcoin.blocks.find({}, {"_id": 0, "idx": 1})
         ]
@@ -87,9 +80,6 @@ def all(
             mongo.bitcoin.queue.insert_many(
                 [{"i": i, "status": 0} for i in items_to_insert]
             )
-
-    # print("done")
-    # input()
 
     MONGO = True
     if perf == True:
@@ -137,8 +127,6 @@ def all(
         print("Start block set from mongo at: %s" % start)
 
     # with alive_bar(height - start, bar="blocks", spinner="fish2", length=75) as bar:
-    # for count, idx in enumerate(range(start, height)):
-    # while q == bitcoin.queue.find_one():
     while q := mongo.bitcoin.queue.find_one_and_update(
         {"status": 0}, {"$set": {"status": 1}}
     ):
@@ -158,8 +146,6 @@ def all(
                 # input()
                 continue
 
-        # TODO REMOVE THIS LINE
-        # idx = 151808
         hash = bitcoin.getblockhash(idx)
         block = bitcoin.getblock(hash, 2)
 
@@ -192,13 +178,14 @@ def all(
             f"{idx} of {height}, hash: {block['hash']}, Transaction: {block['nTx']}, ts: {ts}"
         )
 
+        # TODO We should collect all the transaction data from this loop and do
+        # a single mongo bulk insert.  I think this would drop the load on mongo
+        # quite a bit.
         for tx in block["tx"]:
             if perf:
                 tx = "5933f83f611896b3f35fd650b4f03f9d85d4b6491299c5c5398000834929a224"
 
-            # txn = Transaction(txid=tx)
             txn = Transaction(tx=tx)
-            # input()
 
             if MONGO:
                 for address in txn.outputs:
@@ -219,8 +206,4 @@ def all(
                 # TODO Log this...
                 jprint(txn.errors)
 
-        # print("deleting: %s" % _id)
-        # input()
         mongo.bitcoin.queue.delete_one({"_id": _id})
-        # print("Check")
-        # input()
