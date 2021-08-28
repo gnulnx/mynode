@@ -189,16 +189,19 @@ def all(
 
             if MONGO:
                 for address in txn.outputs:
+                    # print("address: %s" % address)
+                    # print(tx["txid"])
+                    # input()
                     # Update address collection
                     mongo.bitcoin.addresses.update_one(
                         {"address": address["address"]},
-                        {"$addToSet": {"inputs": tx}},
+                        {"$addToSet": {"inputs": tx["txid"]}},
                         upsert=True,
                     )
                 for address in txn.inputs:
                     mongo.bitcoin.addresses.update_one(
                         {"address": address["address"]},
-                        {"$addToSet": {"outputs": tx}},
+                        {"$addToSet": {"outputs": tx["txid"]}},
                         upsert=True,
                     )
 
