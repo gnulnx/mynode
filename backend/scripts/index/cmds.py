@@ -1,11 +1,12 @@
 from sys import hash_info
 from .group import index
 from bitcoincli import Bitcoin
+import time
 
 import click
 
 # from server import bitcoin
-from pymongo import IndexModel, ASCENDING
+from pymongo import IndexModel, ASCENDING, InsertOne, DeleteOne, UpdateOne
 from server import mongo
 from wallet.core.utils.jprint import jprint
 from models.transaction.model import Transaction
@@ -17,7 +18,6 @@ from alive_progress import alive_bar
 
 @index.command()
 @click.option("--start", default=0, type=int, help="Start block")
-@click.option("--perf", default=0, type=bool, help="Start block")
 @click.option(
     "--bitcoin-host",
     default="",
@@ -48,9 +48,7 @@ from alive_progress import alive_bar
     type=bool,
     help="Build the bitcoin.blockqueue collection and populate it",
 )
-def all(
-    start, perf, bitcoin_host, bitcoin_user, bitcoin_password, bitcoin_port, queues
-):
+def all(start, bitcoin_host, bitcoin_user, bitcoin_password, bitcoin_port, queues):
 
     # Initilize our bitcoin client
     bitcoin = Bitcoin(bitcoin_user, bitcoin_password, bitcoin_host, bitcoin_port)
@@ -80,10 +78,6 @@ def all(
             mongo.bitcoin.queue.insert_many(
                 [{"i": i, "status": 0} for i in items_to_insert]
             )
-
-    MONGO = True
-    if perf == True:
-        MONGO = False
 
     """
     address[address] = {
@@ -116,7 +110,7 @@ def all(
 
     # If we pass in start use that as block id x start.
     # Otherwise look at blocks collection and start 1 past the last processed idx
-    if not start and MONGO:
+    if not start:
         out = list(
             mongo.bitcoin.blocks.aggregate(
                 [{"$group": {"_id": "max", "max_idx": {"$max": "$idx"}}}]
@@ -127,47 +121,52 @@ def all(
         print("Start block set from mongo at: %s" % start)
 
     # with alive_bar(height - start, bar="blocks", spinner="fish2", length=75) as bar:
+    count = 0
+    start_time = time.time()
     while q := mongo.bitcoin.queue.find_one_and_update(
         {"status": 0}, {"$set": {"status": 1}}
     ):
 
+        # Perf test only
+        # if count == 50:
+        #     end_time = time.time()
+        #     print(f"Elapsed time: {end_time - start_time}")
+        #     return
+        # count += 1
+
         idx = q["i"]
         _id = q["_id"]
-        # if perf and count == 10:
-        #     return
 
-        if MONGO:
-            out = list(mongo.bitcoin.blocks.find({"idx": idx}, {"idx": 1, "_id": 0}))
-            block_processed = len(list(out)) > 0
-            if block_processed:
-                mongo.bitcoin.queue.delete_one({"_id": _id})
-                # print(len(list(out)) > 0)
-                print(f"Already processed block {idx} - {list(out)}")
-                # input()
-                continue
+        out = list(mongo.bitcoin.blocks.find({"idx": idx}, {"idx": 1, "_id": 0}))
+        block_processed = len(list(out)) > 0
+        if block_processed:
+            mongo.bitcoin.queue.delete_one({"_id": _id})
+            print(f"Already processed block {idx} - {list(out)}")
+            continue
 
         hash = bitcoin.getblockhash(idx)
         block = bitcoin.getblock(hash, 2)
+        # jprint(block)
+        # input()
 
         # A different type of output
         ts = datetime.fromtimestamp(block["time"]).strftime("%Y-%m-%d %h:%M:%S")
 
-        if MONGO:
-            out = mongo.bitcoin.blocks.update_one(
-                {"idx": idx},
-                {
-                    "$set": {
-                        "nTx": block["nTx"],
-                        "ts": datetime.fromtimestamp(block["time"]),
-                        "hash": hash,
-                    }
-                },
-                upsert=True,
-            )
+        block_update = mongo.bitcoin.blocks.update_one(
+            {"idx": idx},
+            {
+                "$set": {
+                    "nTx": block["nTx"],
+                    "ts": datetime.fromtimestamp(block["time"]),
+                    "hash": hash,
+                }
+            },
+            upsert=True,
+        )
 
         # bar()
 
-        if MONGO and out.matched_count == 1:
+        if block_update.matched_count == 1:
             # Don't process blocks that have already been processed
             print(
                 f"{idx} of {height}, hash: {block['hash']}, Transaction: {block['nTx']}, ts: {ts}, skip=True"
@@ -181,32 +180,60 @@ def all(
         # TODO We should collect all the transaction data from this loop and do
         # a single mongo bulk insert.  I think this would drop the load on mongo
         # quite a bit.
+        add_requests = []
         for tx in block["tx"]:
-            if perf:
-                tx = "5933f83f611896b3f35fd650b4f03f9d85d4b6491299c5c5398000834929a224"
+            # tx = "5933f83f611896b3f35fd650b4f03f9d85d4b6491299c5c5398000834929a224"
 
             txn = Transaction(tx=tx)
+            # jprint(txn.inputs)
+            # jprint(txn.outputs)
+            # input()
 
-            if MONGO:
+            txn_insert = mongo.bitcoin.transactions.insert_one(
+                {
+                    "txid": txn.txid,
+                    "block": hash,
+                    "inputs": txn.inputs,
+                    "outputs": txn.outputs,
+                }
+            )
+            txn_id = txn_insert.inserted_id
+
+            try:
                 for address in txn.outputs:
-                    # print("address: %s" % address)
-                    # print(tx["txid"])
-                    # input()
-                    # Update address collection
-                    mongo.bitcoin.addresses.update_one(
-                        {"address": address["address"]},
-                        {"$addToSet": {"inputs": tx["txid"]}},
-                        upsert=True,
-                    )
-                for address in txn.inputs:
-                    mongo.bitcoin.addresses.update_one(
-                        {"address": address["address"]},
-                        {"$addToSet": {"outputs": tx["txid"]}},
-                        upsert=True,
+                    add_requests.append(
+                        UpdateOne(
+                            {"address": address["address"]},
+                            {"$addToSet": {"inputs": txn_id}},
+                            upsert=True,
+                        )
                     )
 
+                for address in txn.inputs:
+                    add_requests.append(
+                        UpdateOne(
+                            {"address": address["address"]},
+                            {"$addToSet": {"outputs": txn_id}},
+                            upsert=True,
+                        )
+                    )
+
+            except Exception as e:
+                print(str(e))
+                print("Address: %s" % address)
+                print(tx["txid"])
+                input()
+
+            # jprint(txn.tx)
             if txn.errors:
                 # TODO Log this...
                 jprint(txn.errors)
 
+        # if len(add_requests) > 2000:
+        #     mongo.bitcoin.addresses.bulk_write(add_requests)
+        #     add_requests = []
+
+        mongo.bitcoin.addresses.bulk_write(add_requests)
         mongo.bitcoin.queue.delete_one({"_id": _id})
+        # print("Check")
+        # input()

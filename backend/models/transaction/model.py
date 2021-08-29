@@ -3,7 +3,6 @@ from wallet.core.utils.jprint import jprint
 from wallet.core.utils.hash import *
 from wallet.core.utils.encoding import *
 import models.transaction.utils as tx_utils
-import uuid
 import json
 
 
@@ -16,13 +15,13 @@ class Transaction:
            objects so we don't have to iterate over them and pass in the ids'.
            getblock 2 is much faster than getblock 1 followed by getrawtransaction loop.
         """
-        self.uuid = uuid.uuid4()
 
         if txid:
             self.txid = txid
             self.tx = bitcoin.getrawtransaction(txid, True)
         elif tx:
             self.tx = tx
+            self.txid = self.tx["txid"]
 
         self.coinbase = False
         self.parent = parent
