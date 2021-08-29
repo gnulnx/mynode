@@ -7,7 +7,7 @@ import json
 
 
 class Transaction:
-    def __init__(self, tx="", txid=None, parent=None):
+    def __init__(self, tx="", bitcoin_server=None, txid=None, parent=None):
         """
         Two way's to instantiate a Transaction object.
         1) Pass in a txid.  This will use getrawtransaction to fetch the transaction record.
@@ -16,9 +16,17 @@ class Transaction:
            getblock 2 is much faster than getblock 1 followed by getrawtransaction loop.
         """
 
+        # Ensure we are using the proper bicoin server passed in from command line
+        if parent:
+            self.bitcoin_server = parent.bitcoin_server
+        elif bitcoin_server:
+            self.bitcoin_server = bitcoin_server
+        else:
+            self.bitcoin_server = bitcoin
+
         if txid:
             self.txid = txid
-            self.tx = bitcoin.getrawtransaction(txid, True)
+            self.tx = self.bitcoin_server.getrawtransaction(txid, True)
         elif tx:
             self.tx = tx
             self.txid = self.tx["txid"]

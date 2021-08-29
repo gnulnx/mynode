@@ -19,25 +19,25 @@ from alive_progress import alive_bar
 @index.command()
 @click.option("--start", default=0, type=int, help="Start block")
 @click.option(
-    "--bitcoin-host",
+    "--rpchost",
     default="",
     type=str,
     help="The host for the Bitcoin server you will fetch/process data from",
 )
 @click.option(
-    "--bitcoin-user",
+    "--rpcuser",
     default="",
     type=str,
     help="The RPC user name for your Bitcoin server",
 )
 @click.option(
-    "--bitcoin-password",
+    "--rpcpassword",
     default="",
     type=str,
     help="The RPC password for your Bitcoin server",
 )
 @click.option(
-    "--bitcoin-port",
+    "--rpcport",
     default=8332,
     type=int,
     help="The RPC port for your Bitcoin server",
@@ -48,10 +48,10 @@ from alive_progress import alive_bar
     type=bool,
     help="Build the bitcoin.blockqueue collection and populate it",
 )
-def all(start, bitcoin_host, bitcoin_user, bitcoin_password, bitcoin_port, queues):
+def all(start, rpchost, rpcuser, rpcpassword, rpcport, queues):
 
     # Initilize our bitcoin client
-    bitcoin = Bitcoin(bitcoin_user, bitcoin_password, bitcoin_host, bitcoin_port)
+    bitcoin = Bitcoin(rpcuser, rpcpassword, rpchost, rpcport)
 
     info = bitcoin.getblockchaininfo()
 
@@ -184,7 +184,7 @@ def all(start, bitcoin_host, bitcoin_user, bitcoin_password, bitcoin_port, queue
         for tx in block["tx"]:
             # tx = "5933f83f611896b3f35fd650b4f03f9d85d4b6491299c5c5398000834929a224"
 
-            txn = Transaction(tx=tx)
+            txn = Transaction(tx=tx, bitcoin_server=bitcoin)
             # jprint(txn.inputs)
             # jprint(txn.outputs)
             # input()
