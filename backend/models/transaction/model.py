@@ -31,6 +31,8 @@ class Transaction:
             self.tx = tx
             self.txid = self.tx["txid"]
 
+        self.fee = self.tx.get("fee", 0.0)
+
         self.coinbase = False
         self.parent = parent
 

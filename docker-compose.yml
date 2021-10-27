@@ -6,7 +6,7 @@ services:
   mongo:
     image: mongo
     container_name: mongo
-    restart: always
+    # restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: btc
       MONGO_INITDB_ROOT_PASSWORD: utxo
@@ -14,11 +14,19 @@ services:
       - "27017:27017"
     volumes:
       - ./dbdata:/data/db
+    deploy:
+      resources:
+        limits:
+          cpus: '5'
+          memory: 4G
+        reservations:
+          cpus: '2'
+          memory: 2G
 
   mongo-express:
     image: mongo-express
     container_name: mongo-express
-    restart: always
+    # restart: always
     ports:
         - 8081:8081
     environment:

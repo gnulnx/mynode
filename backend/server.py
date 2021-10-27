@@ -3,12 +3,11 @@ import pymongo
 import os
 
 # import bitcoin to use python based bitcoin-cli
-# bitcoin = Bitcoin("gnulnx", "bc", "bs", 8332)
 bitcoin = Bitcoin(
     os.environ.get("BC_USERNAME", "gnulnx"),
     os.environ.get("BC_PASSWORD", "bc"),
     os.environ.get("BC_HOST", "localhost"),
-    8332,
+    os.environ.get("BC_PORT", 8334),
 )
 # print(bitcoin.getblockchaininfo())
 

@@ -12,9 +12,7 @@ def build():
 
 def start():
     # Build containers
-    subprocess.run(
-        f"docker-compose up -d", shell=True, check=True
-    )
+    subprocess.run(f"docker-compose up -d", shell=True, check=True)
 
 
 def init():
@@ -29,12 +27,18 @@ def up():
 
 def stop():
     # Stop services
-    subprocess.run(f"docker-compose stop", shell=True, check=True)
+    try:
+        subprocess.run(f"docker-compose stop", shell=True, check=True)
+    except subprocess.CalledProcessError:
+        print("Warning: docker-compose stop failed with non zero exit status")
 
 
 def remove():
     # Remove containers.
-    subprocess.run(f"docker rm -f backend frontend", shell=True, check=True)
+    try:
+        subprocess.run(f"docker rm -f backend frontend", shell=True, check=True)
+    except subprocess.CalledProcessError:
+        print("docker rm -f backend frontend -- Failed with non zero exit status")
 
 
 def status():

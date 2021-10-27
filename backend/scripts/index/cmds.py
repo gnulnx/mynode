@@ -9,7 +9,7 @@ import click
 from pymongo import IndexModel, ASCENDING, InsertOne, DeleteOne, UpdateOne
 from server import mongo
 from wallet.core.utils.jprint import jprint
-from models.transaction.model import Transaction
+from models import Block, Transaction
 from datetime import datetime
 from tqdm import tnrange, tqdm
 from tqdm import tqdm
@@ -121,6 +121,7 @@ def all(start, rpchost, rpcuser, rpcpassword, rpcport, queues):
         print("Start block set from mongo at: %s" % start)
 
     # with alive_bar(height - start, bar="blocks", spinner="fish2", length=75) as bar:
+    global_tracker = 0
     count = 0
     start_time = time.time()
     while q := mongo.bitcoin.queue.find_one_and_update(
@@ -146,8 +147,6 @@ def all(start, rpchost, rpcuser, rpcpassword, rpcport, queues):
 
         hash = bitcoin.getblockhash(idx)
         block = bitcoin.getblock(hash, 2)
-        # jprint(block)
-        # input()
 
         # A different type of output
         ts = datetime.fromtimestamp(block["time"]).strftime("%Y-%m-%d %h:%M:%S")
@@ -173,18 +172,18 @@ def all(start, rpchost, rpcuser, rpcpassword, rpcport, queues):
             )
             continue
 
-        print(
-            f"{idx} of {height}, hash: {block['hash']}, Transaction: {block['nTx']}, ts: {ts}"
-        )
+        start = time.time()
 
-        # TODO We should collect all the transaction data from this loop and do
-        # a single mongo bulk insert.  I think this would drop the load on mongo
-        # quite a bit.
+        if global_tracker == 0:
+            global_txn_start = time.time()
+            txn_start_count = mongo.bitcoin.transactions.count()
+
         add_requests = []
         for tx in block["tx"]:
             # tx = "5933f83f611896b3f35fd650b4f03f9d85d4b6491299c5c5398000834929a224"
 
             txn = Transaction(tx=tx, bitcoin_server=bitcoin)
+
             # jprint(txn.inputs)
             # jprint(txn.outputs)
             # input()
@@ -195,6 +194,8 @@ def all(start, rpchost, rpcuser, rpcpassword, rpcport, queues):
                     "block": hash,
                     "inputs": txn.inputs,
                     "outputs": txn.outputs,
+                    "coinbase": txn.coinbase,
+                    "fee": txn.fee,
                 }
             )
             txn_id = txn_insert.inserted_id
@@ -224,7 +225,6 @@ def all(start, rpchost, rpcuser, rpcpassword, rpcport, queues):
                 print(tx["txid"])
                 input()
 
-            # jprint(txn.tx)
             if txn.errors:
                 # TODO Log this...
                 jprint(txn.errors)
@@ -235,5 +235,84 @@ def all(start, rpchost, rpcuser, rpcpassword, rpcport, queues):
 
         mongo.bitcoin.addresses.bulk_write(add_requests)
         mongo.bitcoin.queue.delete_one({"_id": _id})
+
+        if global_tracker == 10:
+            txn_end_count = mongo.bitcoin.transactions.count()
+            global_txn_end = time.time()
+            global_txn_per_s = (txn_end_count - txn_start_count) / (
+                global_txn_end - global_txn_start
+            )
+            global_tracker = 0
+        else:
+            global_tracker += 1
+            global_txn_per_s = None
+
+        end = time.time()
+
+        txn_per_s = len(block["tx"]) / (end - start)
+
+        if global_txn_per_s:
+            print(
+                f"{idx} of {height}, hash: {block['hash']}, Transaction: {block['nTx']}, ts: {ts}, txns/s: {txn_per_s:.2f}s - {global_txn_per_s:.2f}s"
+            )
+        else:
+            print(
+                f"{idx} of {height}, hash: {block['hash']}, Transaction: {block['nTx']}, ts: {ts}, txns/s: {txn_per_s:.2f}s"
+            )
         # print("Check")
         # input()
+
+
+# @click.option("--start", default=0, type=int, help="Start block")
+# @click.option(
+#     "--rpchost",
+#     default="",
+#     type=str,
+#     help="The host for the Bitcoin server you will fetch/process data from",
+# )
+# @click.option(
+#     "--rpcuser",
+#     default="",
+#     type=str,
+#     help="The RPC user name for your Bitcoin server",
+# )
+# @click.option(
+#     "--rpcpassword",
+#     default="",
+#     type=str,
+#     help="The RPC password for your Bitcoin server",
+# )
+# @click.option(
+#     "--rpcport",
+#     default=8332,
+#     type=int,
+#     help="The RPC port for your Bitcoin server",
+# )
+# @click.option(
+#     "--queues",
+#     default=0,
+#     type=bool,
+#     help="Build the bitcoin.blockqueue collection and populate it",
+# )
+@index.command()
+@click.option(
+    "--datadir",
+    default=None,
+    # required=True,
+    type=str,
+    help="The Bitcoin data directory wit the *.dat files",
+)
+@click.option(
+    "--datafile",
+    required=True,
+    type=str,
+    help="A Bitcoin file (*.dat)",
+)
+def direct(datadir, datafile):
+
+    block = Block(datafile=datafile)
+    block.next_block()
+    # Initilize our bitcoin client
+    # bitcoin = Bitcoin(rpcuser, rpcpassword, rpchost, rpcport)
+    # info = bitcoin.getblockchaininfo()
+    print("Hello")

@@ -3,9 +3,7 @@ import pymongo
 import json
 
 # import bitcoin to use python based bitcoin-cli
-# bitcoin = Bitcoin("gnulnx", "bc", "bs", 8332)
-# bitcoin = Bitcoin("gnulnx", "bc", "192.168.86.29", 8332)
-bitcoin = Bitcoin("gnulnx", "bc", "localhost", 8332)
+bitcoin = Bitcoin("gnulnx", "bc", "localhost", 8335)
 
 # import mongo to access mongo
 mongo = pymongo.MongoClient(
