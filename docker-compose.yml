@@ -41,11 +41,13 @@ services:
         - .:/app
     ports:
       - "5000:5000"
+      - "8334:8334"
     environment:
         DOCKER: 1
         BC_HOST: ${BC_HOST}
         BC_USER: ${BC_USER}
         BC_PASSWORD: ${BC_PASSWORD}
+        BC_PORT: ${BC_PORT}
 
   frontend:
     build: ./frontend

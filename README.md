@@ -30,6 +30,28 @@ export BC_PORT=8334
 
 pip install -r requirements.txt
 
+# Run Locally
+
+Console 1:
+
+```
+cd frontend
+yarn serve
+```
+
+Console 2
+
+```
+cd backend
+FLASK_APP=app.py flask run
+```
+
+# Docker
+
+update vue.conf.js to proxyrequest to 'backend' and not localhost as per docker-compse names.
+
+backend wasn't able to see bitcoin server running locally....
+
 ### Start your node
 
 mynode

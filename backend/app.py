@@ -36,6 +36,7 @@ def main(q=None):
 
 
 @app.route("/info", methods=["GET"])
+@app.route("/api/info", methods=["GET"])
 def info():
     return jsonify(
         {
