@@ -21,10 +21,10 @@ bitcoind -conf=/Volumes/BitcoinSSD/node1/bitcoin.conf -datadir=/Volumes/BitcoinS
 
 Then set the following environment variables such that they match you bitcoin.conf settings
 
-export BC_HOST=localhost
+export BC_HOST=bs
 export BC_USERNAME=gnulnx
 export BC_PASSWORD=bc
-export BC_PORT=8334
+export BC_PORT=8332
 
 ### Install pip packages
 
