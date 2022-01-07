@@ -21,6 +21,7 @@ bitcoind -conf=/Volumes/BitcoinSSD/node1/bitcoin.conf -datadir=/Volumes/BitcoinS
 
 Then set the following environment variables such that they match you bitcoin.conf settings
 
+# Example 'bs' is defined in /etc/hosts
 export BC_HOST=bs
 export BC_USERNAME=gnulnx
 export BC_PASSWORD=bc
